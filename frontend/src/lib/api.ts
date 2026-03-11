@@ -1,7 +1,6 @@
 // src/lib/api.ts
 
-// Use relative path so Vite proxy forwards /api/* → http://localhost:8081
-// This avoids CORS preflight issues for PUT/DELETE that occur with direct cross-origin calls.
+// Backend base URL (Render in production, Vite proxy locally)
 const BASE_URL = import.meta.env.VITE_API_URL || "";
 
 // ===== JWT TOKEN HELPERS =====
@@ -22,10 +21,12 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
   const token = getAuthToken();
   const headers = new Headers(options.headers || {});
 
-  if (token) {
+  // Only attach JWT for admin endpoints
+  if (token && url.startsWith("/api/admin")) {
     headers.set("Authorization", `Bearer ${token}`);
   }
 
+  // Default JSON header unless using FormData
   if (!headers.has("Content-Type") && !(options.body instanceof FormData)) {
     headers.set("Content-Type", "application/json");
   }
@@ -35,16 +36,19 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
     headers,
   });
 
+  // Handle auth failure
   if (response.status === 401) {
     removeAuthToken();
     window.dispatchEvent(new Event("auth-unauthorized"));
   }
 
+  // Handle API errors
   if (!response.ok) {
     const errorBody = await response.text();
     throw new Error(errorBody || "API request failed");
   }
 
+  // Parse JSON safely
   const text = await response.text();
   return text ? JSON.parse(text) : null;
 }
@@ -85,5 +89,4 @@ export const api = {
       method: "PUT",
       body: formData,
     }),
-
 };
