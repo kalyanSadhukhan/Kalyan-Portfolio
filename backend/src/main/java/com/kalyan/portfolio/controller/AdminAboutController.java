@@ -8,7 +8,6 @@ import com.kalyan.portfolio.entity.About;
 
 @RestController
 @RequestMapping("/api/about")
-@CrossOrigin(origins = "http://localhost:8083")
 public class AdminAboutController {
 
     private final AboutService aboutService;
