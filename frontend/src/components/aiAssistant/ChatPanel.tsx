@@ -55,7 +55,8 @@ export function ChatPanel({ isOpen, onClose }: ChatPanelProps) {
 
         try {
 
-            const response = await fetch("http://localhost:8081/api/chat", {
+            const baseUrl = import.meta.env.VITE_API_URL || "";
+            const response = await fetch(`${baseUrl}/api/chat`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

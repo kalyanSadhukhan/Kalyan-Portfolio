@@ -1,6 +1,7 @@
 // src/lib/api.ts
 
-// Use environment variable for backend URL
+// Use relative path so Vite proxy forwards /api/* → http://localhost:8081
+// This avoids CORS preflight issues for PUT/DELETE that occur with direct cross-origin calls.
 const BASE_URL = import.meta.env.VITE_API_URL || "";
 
 // ===== JWT TOKEN HELPERS =====
