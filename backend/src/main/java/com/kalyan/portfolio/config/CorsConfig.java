@@ -2,6 +2,8 @@ package com.kalyan.portfolio.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.web.cors.*;
 import org.springframework.web.filter.CorsFilter;
 
@@ -11,15 +13,15 @@ import java.util.List;
 public class CorsConfig {
 
     @Bean
-    public CorsFilter corsFilter() {
+    public FilterRegistrationBean<CorsFilter> corsFilter() {
 
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowCredentials(true);
 
         config.setAllowedOriginPatterns(List.of(
-                "http://localhost:8083",
-                "https://kalyan-portfolio-steel.vercel.app"
+                "https://kalyan-portfolio-steel.vercel.app",
+                "http://localhost:8083"
         ));
 
         config.setAllowedHeaders(List.of("*"));
@@ -39,6 +41,13 @@ public class CorsConfig {
 
         source.registerCorsConfiguration("/**", config);
 
-        return new CorsFilter(source);
+        CorsFilter corsFilter = new CorsFilter(source);
+
+        FilterRegistrationBean<CorsFilter> bean =
+                new FilterRegistrationBean<>(corsFilter);
+
+        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+
+        return bean;
     }
 }
