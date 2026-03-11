@@ -9,7 +9,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/hobbies")
-@CrossOrigin(origins = "http://localhost:8083")
 public class AdminHobbyController {
 
     private final HobbyService hobbyService;
