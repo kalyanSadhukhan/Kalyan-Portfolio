@@ -1,7 +1,9 @@
 // src/lib/api.ts
 
-// Backend base URL (Render in production, Vite proxy locally)
-const BASE_URL = import.meta.env.VITE_API_URL || "";
+// Backend base URL
+// Production → Render URL from Vercel env
+// Local → empty so Vite proxy handles it
+const BASE_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 
 // ===== JWT TOKEN HELPERS =====
 
@@ -14,6 +16,16 @@ export const removeAuthToken = () =>
   localStorage.removeItem("admin_jwt");
 
 
+// ===== URL HELPER =====
+
+function buildUrl(url: string) {
+  if (!url.startsWith("/")) {
+    url = "/" + url;
+  }
+  return `${BASE_URL}${url}`;
+}
+
+
 // ===== CORE FETCH WRAPPER =====
 
 async function fetchWithAuth(url: string, options: RequestInit = {}) {
@@ -21,22 +33,22 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
   const token = getAuthToken();
   const headers = new Headers(options.headers || {});
 
-  // Only attach JWT for admin endpoints
+  // Attach JWT ONLY for admin endpoints
   if (token && url.startsWith("/api/admin")) {
     headers.set("Authorization", `Bearer ${token}`);
   }
 
-  // Default JSON header unless using FormData
+  // Default JSON header unless sending FormData
   if (!headers.has("Content-Type") && !(options.body instanceof FormData)) {
     headers.set("Content-Type", "application/json");
   }
 
-  const response = await fetch(`${BASE_URL}${url}`, {
+  const response = await fetch(buildUrl(url), {
     ...options,
     headers,
   });
 
-  // Handle auth failure
+  // Handle expired auth
   if (response.status === 401) {
     removeAuthToken();
     window.dispatchEvent(new Event("auth-unauthorized"));
@@ -48,7 +60,7 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
     throw new Error(errorBody || "API request failed");
   }
 
-  // Parse JSON safely
+  // Safe JSON parsing
   const text = await response.text();
   return text ? JSON.parse(text) : null;
 }
