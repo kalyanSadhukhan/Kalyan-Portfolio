@@ -2,8 +2,6 @@ package com.kalyan.portfolio.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.web.cors.*;
 import org.springframework.web.filter.CorsFilter;
 
@@ -13,7 +11,7 @@ import java.util.List;
 public class CorsConfig {
 
     @Bean
-    public FilterRegistrationBean<CorsFilter> corsFilter() {
+    public CorsFilter corsFilter() {
 
         CorsConfiguration config = new CorsConfiguration();
 
@@ -41,13 +39,6 @@ public class CorsConfig {
 
         source.registerCorsConfiguration("/**", config);
 
-        CorsFilter corsFilter = new CorsFilter(source);
-
-        FilterRegistrationBean<CorsFilter> bean =
-                new FilterRegistrationBean<>(corsFilter);
-
-        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
-
-        return bean;
+        return new CorsFilter(source);
     }
 }
