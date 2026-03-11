@@ -1,22 +1,44 @@
 package com.kalyan.portfolio.config;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.*;
+import org.springframework.web.cors.*;
+import org.springframework.web.filter.CorsFilter;
+
+import java.util.List;
 
 @Configuration
-public class CorsConfig implements WebMvcConfigurer {
+public class CorsConfig {
 
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
+    @Bean
+    public CorsFilter corsFilter() {
 
-        registry.addMapping("/**")
-                .allowedOriginPatterns(
-                        "http://localhost:8083",
-                        "https://kalyan-portfolio-steel.vercel.app"
-                )
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("*")
-                .allowCredentials(true)
-                .maxAge(3600);
+        CorsConfiguration config = new CorsConfiguration();
+
+        config.setAllowCredentials(true);
+
+        config.setAllowedOriginPatterns(List.of(
+                "http://localhost:8083",
+                "https://kalyan-portfolio-steel.vercel.app"
+        ));
+
+        config.setAllowedHeaders(List.of("*"));
+
+        config.setAllowedMethods(List.of(
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE",
+                "OPTIONS"
+        ));
+
+        config.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
+
+        source.registerCorsConfiguration("/**", config);
+
+        return new CorsFilter(source);
     }
 }
