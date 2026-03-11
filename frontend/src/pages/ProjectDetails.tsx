@@ -30,6 +30,7 @@ function toDriveDirectUrl(url: string): string {
 
 export default function ProjectDetails() {
     const { id } = useParams<{ id: string }>();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [project, setProject] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
 

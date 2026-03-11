@@ -34,7 +34,11 @@ export const Hobbies = () => {
     e.stopPropagation();
     setFlipped((prev) => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
       return next;
     });
   };
@@ -66,6 +70,7 @@ export const Hobbies = () => {
         {/* Flip-cards grid — 2 cols mobile, 3 sm, 4 lg */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
           {hobbies.map((hobby, index) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const IconComponent = (LucideIcons as any)[hobby.icon] || LucideIcons.Heart;
             const isFlipped = flipped.has(hobby.id);
 

@@ -38,32 +38,31 @@ export default function AdminAboutPage() {
     });
 
     useEffect(() => {
-        loadAbout();
-    }, []);
-
-    const loadAbout = async () => {
-        setIsLoading(true);
-        try {
-            const data = await api.get('/api/about');
-            // Backend returns a single About object
-            if (data && data.id) {
-                setAboutId(data.id);
-                // Support old three-paragraph format and new single bio format
-                const bio = data.bio ||
-                    [data.bioParagraph1, data.bioParagraph2, data.bioParagraph3]
-                        .filter(Boolean)
-                        .join('\n\n');
-                form.reset({
-                    profileImageUrl: data.profileImageUrl || '',
-                    bio,
-                });
+        const loadAbout = async () => {
+            setIsLoading(true);
+            try {
+                const data = await api.get('/api/about');
+                // Backend returns a single About object
+                if (data && data.id) {
+                    setAboutId(data.id);
+                    // Support old three-paragraph format and new single bio format
+                    const bio = data.bio ||
+                        [data.bioParagraph1, data.bioParagraph2, data.bioParagraph3]
+                            .filter(Boolean)
+                            .join('\n\n');
+                    form.reset({
+                        profileImageUrl: data.profileImageUrl || '',
+                        bio,
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to load about section', error);
+            } finally {
+                setIsLoading(false);
             }
-        } catch (error) {
-            console.error('Failed to load about section', error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+        };
+        loadAbout();
+    }, [form]);
 
     const onSubmit = async (data: AboutFormValues) => {
         setIsSubmitting(true);

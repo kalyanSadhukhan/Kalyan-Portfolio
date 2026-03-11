@@ -4,6 +4,7 @@ import { Code, Wrench, BookOpen, Loader2 } from "lucide-react";
 import { api } from "@/lib/api";
 
 export const Skills = () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [dynamicSkills, setDynamicSkills] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -155,6 +156,7 @@ export const Skills = () => {
                     <h3 className="font-heading font-semibold text-lg">{category.title}</h3>
                   </div>
                   <div className="flex flex-wrap gap-2">
+                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                     {category.skills.map((skill: any) => (
                       <a
                         key={skill.name}

@@ -1,31 +1,31 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 
+const fallbackAbout = {
+  bio: "Hi, I'm a passionate developer who specialises in building scalable web applications using modern technologies like React, Node.js, and Spring Boot. I'm always eager to learn new tools and tackle complex technical challenges.",
+};
+
 export default function About() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [about, setAbout] = useState<any>(null);
 
   useEffect(() => {
-    loadAbout();
-  }, []);
-
-  const fallbackAbout = {
-    bio: "Hi, I'm a passionate developer who specialises in building scalable web applications using modern technologies like React, Node.js, and Spring Boot. I'm always eager to learn new tools and tackle complex technical challenges.",
-  };
-
-  const loadAbout = async () => {
-    try {
-      const data = await api.get("/api/about");
-      if (data && typeof data === "object" && !Array.isArray(data)) {
-        setAbout(data);
-      } else if (Array.isArray(data) && data.length > 0) {
-        setAbout(data[0]);
-      } else {
+    const loadAbout = async () => {
+      try {
+        const data = await api.get("/api/about");
+        if (data && typeof data === "object" && !Array.isArray(data)) {
+          setAbout(data);
+        } else if (Array.isArray(data) && data.length > 0) {
+          setAbout(data[0]);
+        } else {
+          setAbout(fallbackAbout);
+        }
+      } catch {
         setAbout(fallbackAbout);
       }
-    } catch {
-      setAbout(fallbackAbout);
-    }
-  };
+    };
+    loadAbout();
+  }, []);
 
   // Merge old three-paragraph fields into bio for backward compatibility
   const getBio = () => {

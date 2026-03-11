@@ -5,7 +5,7 @@ export const getAbout = async () => {
   return res.json();
 };
 
-export const createAbout = async (data: any) => {
+export const createAbout = async (data: unknown) => {
   const res = await fetch(API, {
     method: "POST",
     headers: {
@@ -16,7 +16,7 @@ export const createAbout = async (data: any) => {
   return res.json();
 };
 
-export const updateAbout = async (id: number, data: any) => {
+export const updateAbout = async (id: number, data: unknown) => {
   const res = await fetch(`${API}/${id}`, {
     method: "PUT",
     headers: {
