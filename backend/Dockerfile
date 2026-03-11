@@ -1,13 +1,19 @@
-# Use Java 17 runtime
+# Build stage
+FROM maven:3.9.9-eclipse-temurin-17 AS build
+
+WORKDIR /app
+
+COPY . .
+
+RUN mvn clean package -DskipTests
+
+# Runtime stage
 FROM eclipse-temurin:17-jdk
 
 WORKDIR /app
 
-# Copy project
-COPY . .
+COPY --from=build /app/target/*.jar app.jar
 
-# Build application
-RUN ./mvnw clean package -DskipTests
+EXPOSE 8080
 
-# Run application
-CMD ["java", "-jar", "target/*.jar"]
+CMD ["java", "-jar", "app.jar"]
