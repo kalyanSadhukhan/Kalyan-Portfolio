@@ -1,0 +1,12 @@
+# System
+.DS_Store
+.idea/
+.vscode/
+
+# Ignore node_modules array
+node_modules/
+
+# Environment
+.env
+.env.local
+.env.*.local

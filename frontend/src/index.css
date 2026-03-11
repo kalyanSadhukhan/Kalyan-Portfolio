@@ -1,0 +1,114 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Dark portfolio theme - always dark */
+    --background: 225 15% 6%;  /* #0e0f12 deep ink */
+    --foreground: 210 40% 98%;
+    
+    --card: 222 20% 10%;  /* #171923 slate */
+    --card-foreground: 210 40% 98%;
+    
+    --popover: 222 20% 10%;
+    --popover-foreground: 210 40% 98%;
+    
+    --primary: 206 100% 64%;  /* #4da3ff electric blue */
+    --primary-foreground: 225 15% 6%;
+    
+    --secondary: 222 20% 10%;
+    --secondary-foreground: 210 40% 98%;
+    
+    --muted: 222 20% 15%;
+    --muted-foreground: 215 20% 65%;
+    
+    --accent: 180 80% 60%;  /* cyan-teal */
+    --accent-foreground: 225 15% 6%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    
+    --border: 222 20% 20%;
+    --input: 222 20% 15%;
+    --ring: 206 100% 64%;
+    
+    --radius: 0.75rem;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(206 100% 64%), hsl(180 80% 60%));
+    --gradient-hero: linear-gradient(180deg, hsl(225 15% 6% / 0.8), hsl(225 15% 6%));
+    
+    /* Glow effects */
+    --glow-primary: 0 0 40px hsl(206 100% 64% / 0.4);
+    --glow-accent: 0 0 30px hsl(180 80% 60% / 0.3);
+    
+    /* Glassmorphism */
+    --glass-bg: hsl(222 20% 10% / 0.4);
+    --glass-border: hsl(210 40% 98% / 0.1);
+    
+    /* Transitions */
+    --transition-smooth: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-quick: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: 600;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer utilities {
+  .glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px 0 hsl(0 0% 0% / 0.37);
+  }
+  
+  .glow-primary {
+    box-shadow: var(--glow-primary);
+  }
+  
+  .glow-accent {
+    box-shadow: var(--glow-accent);
+  }
+  
+  .gradient-text {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
