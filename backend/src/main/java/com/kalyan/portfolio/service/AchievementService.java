@@ -31,6 +31,7 @@ public class AchievementService {
             achievement.setOrganization(updatedData.getOrganization());
             achievement.setDate(updatedData.getDate());
             achievement.setDescription(updatedData.getDescription());
+            achievement.setUrl(updatedData.getUrl());
             return repository.save(achievement);
         }).orElseThrow(() -> new RuntimeException("Achievement not found"));
     }
