@@ -60,46 +60,47 @@ export const Achievements = () => {
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {achievements.map((item) => (
-                    <div key={item.id} className="group relative glass-card p-6 border border-white/5 rounded-2xl transition-all duration-500 hover:bg-white/[0.03] hover:border-primary/30 hover:shadow-[0_8px_30px_-8px_rgba(var(--primary),0.25)] overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full -mr-16 -mt-16 transition-transform duration-500 group-hover:scale-150" />
-                        
-                        <div className="relative z-10 h-full flex flex-col">
-                            <div className="flex justify-between items-start gap-4 mb-2">
-                                <h3 className="text-xl font-bold text-white group-hover:text-primary transition-colors hover:underline decoration-primary underline-offset-4 decoration-2">{item.title}</h3>
-                                {item.url && (
-                                    <a 
-                                        href={item.url} 
-                                        target="_blank" 
-                                        rel="noreferrer" 
-                                        className="p-2 bg-white/5 rounded-lg text-muted-foreground hover:text-white hover:bg-secondary/20 transition-all shadow-sm shrink-0"
-                                        aria-label={`View link for ${item.title}`}
-                                        onClick={(e) => e.stopPropagation()}
-                                    >
-                                        <ExternalLink className="w-4 h-4" />
-                                    </a>
-                                )}
-                            </div>
-                            <p className="text-accent font-medium text-sm mb-4">{item.organization}</p>
+                {achievements.map((item) => {
+                    const CardWrapper = item.url ? 'a' : 'div';
+                    const cardProps = item.url
+                        ? { href: item.url, target: '_blank', rel: 'noreferrer' }
+                        : {};
+                    return (
+                        <CardWrapper
+                            key={item.id}
+                            {...cardProps}
+                            className="group relative glass-card p-6 border border-white/5 rounded-2xl transition-all duration-500 hover:bg-white/[0.03] hover:border-primary/30 hover:shadow-[0_8px_30px_-8px_rgba(var(--primary),0.25)] overflow-hidden block"
+                        >
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full -mr-16 -mt-16 transition-transform duration-500 group-hover:scale-150 pointer-events-none" />
                             
-                            {item.description && (
-                                <p className="text-muted-foreground text-sm leading-relaxed mb-4 flex-grow">
-                                    {item.description}
-                                </p>
-                            )}
+                            <div className="relative z-10 h-full flex flex-col">
+                                <div className="flex justify-between items-start gap-4 mb-2">
+                                    <h3 className="text-xl font-bold text-white group-hover:text-primary transition-colors">{item.title}</h3>
+                                    {item.url && (
+                                        <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0 mt-1" />
+                                    )}
+                                </div>
+                                <p className="text-accent font-medium text-sm mb-4">{item.organization}</p>
+                                
+                                {item.description && (
+                                    <p className="text-muted-foreground text-sm leading-relaxed mb-4 flex-grow">
+                                        {item.description}
+                                    </p>
+                                )}
 
-                            <div className="flex items-center gap-2 text-xs text-muted-foreground mt-auto border-t border-white/5 pt-4">
-                                <Calendar className="w-4 h-4 text-primary/70" />
-                                <span>
-                                    {item.date ? (() => {
-                                        const d = new Date(item.date);
-                                        return isNaN(d.getTime()) ? item.date : d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-                                    })() : 'N/A'}
-                                </span>
+                                <div className="flex items-center gap-2 text-xs text-muted-foreground mt-auto border-t border-white/5 pt-4">
+                                    <Calendar className="w-4 h-4 text-primary/70" />
+                                    <span>
+                                        {item.date ? (() => {
+                                            const d = new Date(item.date);
+                                            return isNaN(d.getTime()) ? item.date : d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                                        })() : 'N/A'}
+                                    </span>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                ))}
+                        </CardWrapper>
+                    );
+                })}
             </div>
         </div>
     </section>
