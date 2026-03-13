@@ -156,7 +156,7 @@ export const EducationCertifications = () => {
                     <div className="grid gap-4">
                         {certifications.map((cert) => (
                             <div key={cert.id} className="group relative glass-card p-3 border border-white/5 rounded-xl transition-all duration-500 hover:bg-white/[0.03] hover:border-primary/30 hover:shadow-[0_4px_15px_-4px_rgba(var(--primary),0.25)] overflow-hidden flex items-center justify-between gap-3">
-                                <div className="absolute top-0 right-0 w-16 h-16 bg-primary/5 rounded-bl-full -mr-8 -mt-8 transition-transform duration-500 group-hover:scale-150" />
+                                <div className="absolute top-0 right-0 w-16 h-16 bg-primary/5 rounded-bl-full -mr-8 -mt-8 transition-transform duration-500 group-hover:scale-150 pointer-events-none" />
                                 
                                 <div className="relative z-10 flex-1 min-w-0">
                                     <h3 className="text-base font-bold text-white group-hover:text-primary transition-colors truncate">{cert.name}</h3>
