@@ -81,7 +81,7 @@ export const Hobbies = () => {
                 style={{
                   animationDelay: `${index * 60}ms`,
                   perspective: "1000px",
-                  height: "110px",
+                  height: "140px",
                 }}
               >
                 {/* 3-D flip wrapper */}
@@ -93,23 +93,23 @@ export const Hobbies = () => {
                     transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
                   }}
                 >
-                  {/* ─── FRONT ─── icon left, name beside it, flip button bottom-right */}
+                  {/* ─── FRONT ─── icon center, name, flip button bottom-right */}
                   <div
-                    className="absolute inset-0 glass-card rounded-xl border border-white/5 hover:border-primary/30 hover:-translate-y-1 hover:shadow-[0_8px_30px_-8px_rgba(var(--primary),0.25)] transition-all duration-300 p-4 flex flex-col justify-between overflow-hidden"
+                    className="absolute inset-0 glass-card rounded-xl border border-white/5 hover:border-primary/30 hover:-translate-y-1 hover:shadow-[0_8px_30px_-8px_rgba(var(--primary),0.25)] transition-all duration-300 p-4 flex flex-col justify-center items-center text-center overflow-hidden"
                     style={{ backfaceVisibility: "hidden" }}
                   >
                     {/* Top row: icon + name */}
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <IconComponent className="w-5 h-5 text-primary" />
+                    <div className="flex flex-col items-center gap-3 min-w-0">
+                      <div className="shrink-0 w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <IconComponent className="w-6 h-6 text-primary" />
                       </div>
-                      <span className="text-base font-bold text-white leading-tight line-clamp-2">
+                      <span className="text-lg sm:text-xl font-bold text-white leading-tight line-clamp-2">
                         {hobby.name}
                       </span>
                     </div>
 
-                    {/* Bottom row: flip trigger aligned right */}
-                    <div className="flex justify-end">
+                    {/* Bottom row: flip trigger absolute positioned */}
+                    <div className="absolute bottom-2 right-3">
                       <button
                         onClick={(e) => toggleFlip(hobby.id, e)}
                         className="flex items-center gap-1 text-[11px] text-primary/70 hover:text-primary transition-colors"
@@ -123,17 +123,17 @@ export const Hobbies = () => {
 
                   {/* ─── BACK ─── description */}
                   <div
-                    className="absolute inset-0 glass-card rounded-xl border border-primary/20 bg-primary/5 p-4 flex flex-col justify-between overflow-hidden"
+                    className="absolute inset-0 glass-card rounded-xl border border-primary/20 bg-primary/5 p-4 flex flex-col justify-center items-center text-center overflow-hidden"
                     style={{
                       backfaceVisibility: "hidden",
                       transform: "rotateY(180deg)",
                     }}
                   >
-                    <p className="text-xs text-muted-foreground leading-relaxed line-clamp-4 flex-1">
+                    <p className="text-sm text-muted-foreground leading-relaxed line-clamp-4">
                       {hobby.description || "No description added yet."}
                     </p>
 
-                    <div className="flex justify-end mt-2">
+                    <div className="absolute bottom-2 right-3">
                       <button
                         onClick={(e) => toggleFlip(hobby.id, e)}
                         className="flex items-center gap-1 text-[11px] text-primary/70 hover:text-primary transition-colors"

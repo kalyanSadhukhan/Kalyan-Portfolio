@@ -17,6 +17,7 @@ import AdminSkills from "./pages/admin/Skills";
 import AdminEducation from "./pages/admin/Education";
 import AdminCertifications from "./pages/admin/Certifications";
 import AdminHobbies from "./pages/admin/Hobbies";
+import AdminAchievements from "./pages/admin/Achievements";
 import { AdminLayout } from "./components/admin/AdminLayout";
 import { ProtectedRoute } from "./components/admin/ProtectedRoute";
 
@@ -48,6 +49,7 @@ const App = () => (
                 <Route path="education" element={<AdminEducation />} />
                 <Route path="certifications" element={<AdminCertifications />} />
                 <Route path="hobbies" element={<AdminHobbies />} />
+                <Route path="achievements" element={<AdminAchievements />} />
               </Route>
             </Route>
 

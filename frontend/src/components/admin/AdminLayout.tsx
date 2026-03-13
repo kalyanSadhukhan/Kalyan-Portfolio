@@ -1,5 +1,5 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, FolderKanban, LogOut, ArrowLeft, Menu, User, Lightbulb, GraduationCap, Award, Heart } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, LogOut, ArrowLeft, Menu, User, Lightbulb, GraduationCap, Award, Heart, Trophy } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -22,6 +22,7 @@ export const AdminLayout = () => {
         { name: 'Education', path: '/admin/education', icon: GraduationCap },
         { name: 'Certifications', path: '/admin/certifications', icon: Award },
         { name: 'Hobbies', path: '/admin/hobbies', icon: Heart },
+        { name: 'Achievements', path: '/admin/achievements', icon: Trophy },
         { name: 'Projects', path: '/admin/projects', icon: FolderKanban },
     ];
 

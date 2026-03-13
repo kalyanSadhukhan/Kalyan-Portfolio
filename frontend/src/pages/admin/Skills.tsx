@@ -55,7 +55,7 @@ interface Skill {
     id: string | number;
     name: string;
     url: string;
-    category: string; // e.g., 'Programming Languages', 'Tools & Platforms', 'Core Concepts'
+    category: string; // e.g., 'Programming Languages', 'Tools & Platforms', 'Core Concepts and Frameworks'
     displayOrder?: number;
 }
 
@@ -70,7 +70,7 @@ type SkillFormValues = z.infer<typeof skillSchema>;
 const CATEGORIES = [
     { id: 'Programming Languages', icon: Code, color: 'primary' },
     { id: 'Tools & Platforms', icon: Wrench, color: 'accent' },
-    { id: 'Core Concepts', icon: BookOpen, color: 'primary' }
+    { id: 'Core Concepts and Frameworks', icon: BookOpen, color: 'primary' }
 ];
 
 export default function AdminSkills() {
@@ -107,7 +107,7 @@ export default function AdminSkills() {
                 setSkills([
                     { id: '1', name: 'Java', url: 'https://example.com/java', category: 'Programming Languages', displayOrder: 0 },
                     { id: '2', name: 'React', url: 'https://reactjs.org', category: 'Tools & Platforms', displayOrder: 1 },
-                    { id: '3', name: 'DSA', url: 'https://example.com/dsa', category: 'Core Concepts', displayOrder: 2 },
+                    { id: '3', name: 'DSA', url: 'https://example.com/dsa', category: 'Core Concepts and Frameworks', displayOrder: 2 },
                 ]);
                 setIsLoading(false);
             }, 500);
@@ -183,31 +183,38 @@ export default function AdminSkills() {
         }
     };
 
-    const handleMove = async (index: number, direction: 'up' | 'down') => {
-        const newIndex = direction === 'up' ? index - 1 : index + 1;
-        if (newIndex < 0 || newIndex >= skills.length) return;
-
-        const newSkills = [...skills];
-        const temp = newSkills[index];
-        newSkills[index] = newSkills[newIndex];
-        newSkills[newIndex] = temp;
-
-        // Update displayOrder numbers
-        newSkills.forEach((skill, i) => {
-            skill.displayOrder = i;
+    const handleMoveInCategory = async (skill: Skill, direction: 'up' | 'down') => {
+        const categorySkills = skills.filter(s => s.category === skill.category);
+        const catIndex = categorySkills.findIndex(s => s.id === skill.id);
+        
+        const targetIndex = direction === 'up' ? catIndex - 1 : catIndex + 1;
+        if (targetIndex < 0 || targetIndex >= categorySkills.length) return;
+        
+        const newCategorySkills = [...categorySkills];
+        const temp = newCategorySkills[catIndex];
+        newCategorySkills[catIndex] = newCategorySkills[targetIndex];
+        newCategorySkills[targetIndex] = temp;
+        
+        // rebuild the full array
+        const otherSkills = skills.filter(s => s.category !== skill.category);
+        const combined = [...otherSkills, ...newCategorySkills];
+        
+        // reassign displayOrder globally
+        combined.forEach((s, i) => {
+            s.displayOrder = i;
         });
-
-        setSkills(newSkills);
-
+        
+        setSkills(combined);
+        
         try {
             await Promise.all([
-                api.put(`/api/skills/${newSkills[index].id}`, newSkills[index]),
-                api.put(`/api/skills/${newSkills[newIndex].id}`, newSkills[newIndex])
+                api.put(`/api/skills/${newCategorySkills[catIndex].id}`, newCategorySkills[catIndex]),
+                api.put(`/api/skills/${newCategorySkills[targetIndex].id}`, newCategorySkills[targetIndex])
             ]);
             toast.success('Order updated');
         } catch (error) {
             toast.error('Failed to save order');
-            fetchSkills(); // Revert layout on failure
+            fetchSkills(); 
         }
     };
 
@@ -236,56 +243,68 @@ export default function AdminSkills() {
                             No skills added yet. Time to flex your abilities!
                         </div>
                     ) : (
-                        <Table>
-                            <TableHeader>
-                                <TableRow className="border-border/50 hover:bg-transparent">
-                                    <TableHead className="w-16">Sort</TableHead>
-                                    <TableHead>Skill Name</TableHead>
-                                    <TableHead>Category</TableHead>
-                                    <TableHead className="hidden sm:table-cell">Resource URL</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {skills.map((skill, index) => (
-                                    <TableRow key={skill.id} className="border-border/50">
-                                        <TableCell>
-                                            <div className="flex flex-col -space-y-1">
-                                                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleMove(index, 'up')} disabled={index === 0}>
-                                                    <ArrowUp className="h-3 w-3 text-muted-foreground" />
-                                                </Button>
-                                                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleMove(index, 'down')} disabled={index === skills.length - 1}>
-                                                    <ArrowDown className="h-3 w-3 text-muted-foreground" />
-                                                </Button>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="font-medium">
-                                            <Badge variant="outline" className="bg-muted/50">{skill.name}</Badge>
-                                        </TableCell>
-                                        <TableCell>{skill.category}</TableCell>
-                                        <TableCell className="hidden sm:table-cell">
-                                            {skill.url ? (
-                                                <a href={skill.url} target="_blank" rel="noreferrer" className="text-primary hover:underline max-w-[200px] truncate block text-sm">
-                                                    {skill.url}
-                                                </a>
-                                            ) : (
-                                                <span className="text-muted-foreground text-sm">No link</span>
-                                            )}
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            <div className="flex justify-end gap-2">
-                                                <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(skill)}>
-                                                    <Edit2 className="h-4 w-4 text-muted-foreground" />
-                                                </Button>
-                                                <Button variant="ghost" size="icon" onClick={() => handleDelete(skill.id)}>
-                                                    <Trash2 className="h-4 w-4 text-destructive" />
-                                                </Button>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
+                        <div className="space-y-6">
+                            {CATEGORIES.map((category) => {
+                                const categorySkills = skills.filter(s => s.category === category.id);
+                                if (categorySkills.length === 0) return null;
+                                return (
+                                    <div key={category.id} className="p-4">
+                                        <div className="flex items-center gap-2 mb-4 border-b border-border/50 pb-2">
+                                            <category.icon className="h-5 w-5 text-primary" />
+                                            <h3 className="text-lg font-semibold">{category.id}</h3>
+                                        </div>
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow className="border-border/50 hover:bg-transparent">
+                                                    <TableHead className="w-16">Sort</TableHead>
+                                                    <TableHead>Skill Name</TableHead>
+                                                    <TableHead className="hidden sm:table-cell">Resource URL</TableHead>
+                                                    <TableHead className="text-right">Actions</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {categorySkills.map((skill, index) => (
+                                                    <TableRow key={skill.id} className="border-border/50">
+                                                        <TableCell>
+                                                            <div className="flex flex-col -space-y-1">
+                                                                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleMoveInCategory(skill, 'up')} disabled={index === 0}>
+                                                                    <ArrowUp className="h-3 w-3 text-muted-foreground" />
+                                                                </Button>
+                                                                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleMoveInCategory(skill, 'down')} disabled={index === categorySkills.length - 1}>
+                                                                    <ArrowDown className="h-3 w-3 text-muted-foreground" />
+                                                                </Button>
+                                                            </div>
+                                                        </TableCell>
+                                                        <TableCell className="font-medium">
+                                                            <Badge variant="outline" className="bg-muted/50">{skill.name}</Badge>
+                                                        </TableCell>
+                                                        <TableCell className="hidden sm:table-cell">
+                                                            {skill.url ? (
+                                                                <a href={skill.url} target="_blank" rel="noreferrer" className="text-primary hover:underline max-w-[200px] truncate block text-sm">
+                                                                    {skill.url}
+                                                                </a>
+                                                            ) : (
+                                                                <span className="text-muted-foreground text-sm">No link</span>
+                                                            )}
+                                                        </TableCell>
+                                                        <TableCell className="text-right">
+                                                            <div className="flex justify-end gap-2">
+                                                                <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(skill)}>
+                                                                    <Edit2 className="h-4 w-4 text-muted-foreground" />
+                                                                </Button>
+                                                                <Button variant="ghost" size="icon" onClick={() => handleDelete(skill.id)}>
+                                                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                                                </Button>
+                                                            </div>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
+                                );
+                            })}
+                        </div>
                     )}
                 </CardContent>
             </Card>

@@ -40,7 +40,7 @@ export const Skills = () => {
     },
     {
       icon: BookOpen,
-      title: "Core Concepts",
+      title: "Core Concepts and Frameworks",
       skills: [],
       color: "primary",
     },
@@ -83,7 +83,7 @@ export const Skills = () => {
     },
     {
       icon: BookOpen,
-      title: "Core Concepts",
+      title: "Core Concepts and Frameworks",
       skills: [
         { name: "OOP", url: "https://www.geeksforgeeks.org/object-oriented-programming-oops-concept-in-java/" },
         { name: "DBMS", url: "https://www.geeksforgeeks.org/dbms/" },
