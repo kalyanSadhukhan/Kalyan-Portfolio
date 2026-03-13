@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Trophy, Calendar, Loader2, ExternalLink } from "lucide-react";
+import { Calendar, Loader2, ExternalLink } from "lucide-react";
 import { api } from "../lib/api";
 
 interface Achievement {
@@ -49,14 +49,14 @@ export const Achievements = () => {
         <div className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-r from-primary/5 to-transparent pointer-events-none opacity-50 blur-3xl" />
 
         <div className="max-w-7xl mx-auto relative z-10 animate-fade-in-up">
-            <div className="flex items-center gap-4 mb-8">
-                <div className="p-3 bg-primary/10 rounded-xl rounded-tr-none border border-primary/20 shadow-[0_0_15px_rgba(var(--primary),0.2)]">
-                    <Trophy className="w-8 h-8 text-primary" />
-                </div>
-                <div>
-                    <h2 className="text-3xl font-heading font-bold text-white tracking-tight">Achievements & Participation</h2>
-                    <p className="text-muted-foreground mt-1 text-sm font-medium">Notable accomplishments and activities</p>
-                </div>
+            <div className="text-center mb-12 animate-fade-in">
+                <h2 className="text-4xl sm:text-5xl font-heading font-bold mb-4">
+                    Achievements <span className="gradient-text">&amp; Participation</span>
+                </h2>
+                <div className="w-20 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full" />
+                <p className="mt-6 text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed">
+                    Notable accomplishments and activities
+                </p>
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
