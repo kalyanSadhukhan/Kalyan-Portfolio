@@ -50,6 +50,7 @@ interface Achievement {
     organization: string;
     date: string;
     description: string;
+    url?: string;
 }
 
 const achievementSchema = z.object({
@@ -57,6 +58,7 @@ const achievementSchema = z.object({
     organization: z.string().min(1, 'Organization is required'),
     date: z.string().min(1, 'Date is required'),
     description: z.string().or(z.literal('')),
+    url: z.string().url('Must be a valid URL').optional().or(z.literal('')),
 });
 
 type AchievementFormValues = z.infer<typeof achievementSchema>;
@@ -76,6 +78,7 @@ export default function AdminAchievements() {
             organization: '',
             date: '',
             description: '',
+            url: '',
         },
     });
 
@@ -105,6 +108,7 @@ export default function AdminAchievements() {
                 organization: item.organization,
                 date: item.date,
                 description: item.description || '',
+                url: item.url || '',
             });
         } else {
             setEditingItem(null);
@@ -113,6 +117,7 @@ export default function AdminAchievements() {
                 organization: '',
                 date: '',
                 description: '',
+                url: '',
             });
         }
         setIsDialogOpen(true);
@@ -270,6 +275,20 @@ export default function AdminAchievements() {
                                         <FormLabel>Date</FormLabel>
                                         <FormControl>
                                             <Input type="date" className="bg-background/50" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
+                                name="url"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>URL (Optional)</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="https://example.com" className="bg-background/50" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

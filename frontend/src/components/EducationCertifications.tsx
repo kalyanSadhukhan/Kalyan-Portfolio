@@ -111,7 +111,13 @@ export const EducationCertifications = () => {
                                         <div className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1 bg-primary/10 text-primary rounded-full w-fit">
                                             <Calendar className="w-3 h-3" />
                                             <span>
-                                                {edu.startDate ? edu.startDate.substring(0, 4) : '?'} - {edu.endDate ? edu.endDate.substring(0, 4) : 'Present'}
+                                                {edu.startDate && edu.endDate 
+                                                    ? `${edu.startDate.substring(0, 4)} - ${edu.endDate.substring(0, 4)}` 
+                                                    : edu.startDate 
+                                                        ? `${edu.startDate.substring(0, 4)} - Present` 
+                                                        : edu.endDate 
+                                                            ? edu.endDate.substring(0, 4) 
+                                                            : 'N/A'}
                                             </span>
                                         </div>
                                     </div>
@@ -149,41 +155,41 @@ export const EducationCertifications = () => {
 
                     <div className="grid gap-4">
                         {certifications.map((cert) => (
-                            <div key={cert.id} className="group relative glass-card p-5 border border-white/5 rounded-2xl transition-all duration-500 hover:bg-white/[0.03] hover:border-primary/30 hover:shadow-[0_8px_30px_-8px_rgba(var(--primary),0.25)] overflow-hidden">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full -mr-16 -mt-16 transition-transform duration-500 group-hover:scale-150" />
+                            <div key={cert.id} className="group relative glass-card p-3 border border-white/5 rounded-xl transition-all duration-500 hover:bg-white/[0.03] hover:border-primary/30 hover:shadow-[0_4px_15px_-4px_rgba(var(--primary),0.25)] overflow-hidden flex items-center justify-between gap-3">
+                                <div className="absolute top-0 right-0 w-16 h-16 bg-primary/5 rounded-bl-full -mr-8 -mt-8 transition-transform duration-500 group-hover:scale-150" />
                                 
-                                <div className="relative z-10">
-                                    <div className="flex justify-between items-start gap-4">
-                                        <div>
-                                            <h3 className="text-lg font-bold text-white mb-1 group-hover:text-primary transition-colors">{cert.name}</h3>
-                                            <p className="text-gray-400 font-medium text-sm mb-3">{cert.issuingOrganization}</p>
-                                        </div>
-                                        {cert.credentialUrl && (
-                                            <a 
-                                                href={cert.credentialUrl} 
-                                                target="_blank" 
-                                                rel="noreferrer" 
-                                                className="p-2 bg-white/5 rounded-lg text-muted-foreground hover:text-white hover:bg-secondary/20 transition-all shadow-sm"
-                                                aria-label={`View credential for ${cert.name}`}
-                                            >
-                                                <ExternalLink className="w-4 h-4" />
-                                            </a>
-                                        )}
-                                    </div>
-
-                                    <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2 border-t border-white/5 pt-3">
-                                        <Calendar className="w-3.5 h-3.5" />
-                                        <span>Issued {cert.issueDate
-                                            ? (() => {
-                                                const d = new Date(cert.issueDate);
-                                                return isNaN(d.getTime())
-                                                    ? cert.issueDate
-                                                    : d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-                                              })()
-                                            : 'N/A'}
+                                <div className="relative z-10 flex-1 min-w-0">
+                                    <h3 className="text-base font-bold text-white group-hover:text-primary transition-colors truncate">{cert.name}</h3>
+                                    <div className="flex items-center gap-2 text-xs text-gray-400 font-medium mt-1">
+                                        <span className="truncate">{cert.issuingOrganization}</span>
+                                        <span className="text-white/20">•</span>
+                                        <span className="flex items-center gap-1 shrink-0">
+                                            <Calendar className="w-3 h-3" />
+                                            {cert.issueDate
+                                                ? (() => {
+                                                    const d = new Date(cert.issueDate);
+                                                    return isNaN(d.getTime())
+                                                        ? cert.issueDate
+                                                        : d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                                                  })()
+                                                : 'N/A'}
                                         </span>
                                     </div>
                                 </div>
+
+                                {cert.credentialUrl && (
+                                    <div className="relative z-10 shrink-0">
+                                        <a 
+                                            href={cert.credentialUrl} 
+                                            target="_blank" 
+                                            rel="noreferrer" 
+                                            className="flex items-center justify-center p-2 bg-white/5 rounded-lg text-muted-foreground hover:text-white hover:bg-secondary/20 transition-all shadow-sm"
+                                            aria-label={`View credential for ${cert.name}`}
+                                        >
+                                            <ExternalLink className="w-3.5 h-3.5" />
+                                        </a>
+                                    </div>
+                                )}
                             </div>
                         ))}
                     </div>

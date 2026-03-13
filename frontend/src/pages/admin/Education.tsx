@@ -58,8 +58,8 @@ interface Education {
 const educationSchema = z.object({
     institution: z.string().min(1, 'Institution is required'),
     degree: z.string().min(1, 'Degree is required'),
-    startDate: z.string().min(1, 'Start Date is required'),
-    endDate: z.string().min(1, 'End Date is required'),
+    startDate: z.string().optional().or(z.literal('')),
+    endDate: z.string().optional().or(z.literal('')),
     description: z.string(),
     gradeScore: z.string().optional(),
     marksheetUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),

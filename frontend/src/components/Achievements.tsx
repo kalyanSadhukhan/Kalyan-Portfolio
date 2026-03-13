@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Trophy, Calendar, Loader2 } from "lucide-react";
+import { Trophy, Calendar, Loader2, ExternalLink } from "lucide-react";
 import { api } from "../lib/api";
 
 interface Achievement {
@@ -8,6 +8,7 @@ interface Achievement {
   organization: string;
   date: string;
   description: string;
+  url?: string;
 }
 
 export const Achievements = () => {
@@ -64,7 +65,21 @@ export const Achievements = () => {
                         <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full -mr-16 -mt-16 transition-transform duration-500 group-hover:scale-150" />
                         
                         <div className="relative z-10 h-full flex flex-col">
-                            <h3 className="text-xl font-bold text-white mb-2 group-hover:text-primary transition-colors hover:underline decoration-primary underline-offset-4 decoration-2">{item.title}</h3>
+                            <div className="flex justify-between items-start gap-4 mb-2">
+                                <h3 className="text-xl font-bold text-white group-hover:text-primary transition-colors hover:underline decoration-primary underline-offset-4 decoration-2">{item.title}</h3>
+                                {item.url && (
+                                    <a 
+                                        href={item.url} 
+                                        target="_blank" 
+                                        rel="noreferrer" 
+                                        className="p-2 bg-white/5 rounded-lg text-muted-foreground hover:text-white hover:bg-secondary/20 transition-all shadow-sm shrink-0"
+                                        aria-label={`View link for ${item.title}`}
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        <ExternalLink className="w-4 h-4" />
+                                    </a>
+                                )}
+                            </div>
                             <p className="text-accent font-medium text-sm mb-4">{item.organization}</p>
                             
                             {item.description && (

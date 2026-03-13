@@ -19,12 +19,15 @@ public class Achievement {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    private String url;
+
     // Getters
     public Long getId() { return id; }
     public String getTitle() { return title; }
     public String getOrganization() { return organization; }
     public String getDate() { return date; }
     public String getDescription() { return description; }
+    public String getUrl() { return url; }
 
     // Setters
     public void setId(Long id) { this.id = id; }
@@ -32,4 +35,5 @@ public class Achievement {
     public void setOrganization(String organization) { this.organization = organization; }
     public void setDate(String date) { this.date = date; }
     public void setDescription(String description) { this.description = description; }
+    public void setUrl(String url) { this.url = url; }
 }
