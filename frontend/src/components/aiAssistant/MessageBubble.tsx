@@ -6,6 +6,61 @@ export interface Message {
     content: string;
 }
 
+/** Renders a single line with **bold** text parsed into <strong> tags */
+function renderInline(text: string): React.ReactNode[] {
+    const parts = text.split(/(\*\*[^*]+\*\*)/g);
+    return parts.map((part, i) => {
+        if (part.startsWith("**") && part.endsWith("**")) {
+            return <strong key={i} className="font-semibold text-foreground">{part.slice(2, -2)}</strong>;
+        }
+        return <span key={i}>{part}</span>;
+    });
+}
+
+/** Converts a markdown string into structured JSX: bullets, bold, line breaks */
+function renderMarkdown(content: string): React.ReactNode {
+    const lines = content.split("\n");
+    const elements: React.ReactNode[] = [];
+    let bulletBuffer: string[] = [];
+
+    const flushBullets = () => {
+        if (bulletBuffer.length > 0) {
+            elements.push(
+                <ul key={`ul-${elements.length}`} className="list-disc pl-4 space-y-1 my-1">
+                    {bulletBuffer.map((item, i) => (
+                        <li key={i} className="text-sm">{renderInline(item)}</li>
+                    ))}
+                </ul>
+            );
+            bulletBuffer = [];
+        }
+    };
+
+    lines.forEach((line, idx) => {
+        const trimmed = line.trim();
+
+        // Bullet: lines starting with "* ", "- " or "• "
+        if (/^[*\-•]\s+/.test(trimmed)) {
+            bulletBuffer.push(trimmed.replace(/^[*\-•]\s+/, ""));
+        } else {
+            flushBullets();
+            if (trimmed === "") {
+                // empty line — small spacer
+                elements.push(<div key={`sp-${idx}`} className="h-1" />);
+            } else {
+                elements.push(
+                    <p key={`p-${idx}`} className="text-sm leading-relaxed">
+                        {renderInline(trimmed)}
+                    </p>
+                );
+            }
+        }
+    });
+
+    flushBullets();
+    return <div className="flex flex-col gap-1">{elements}</div>;
+}
+
 export function MessageBubble({ message }: { message: Message }) {
     const isUser = message.role === "user";
 
@@ -22,7 +77,7 @@ export function MessageBubble({ message }: { message: Message }) {
                         ? "bg-primary text-primary-foreground rounded-tr-sm"
                         : "bg-muted/50 border border-border/50 text-foreground rounded-tl-sm"
                     }`}>
-                    {message.content}
+                    {isUser ? message.content : renderMarkdown(message.content)}
                 </div>
             </div>
         </div>
@@ -45,3 +100,4 @@ export function TypingIndicator() {
         </div>
     );
 }
+
