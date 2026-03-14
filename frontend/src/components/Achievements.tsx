@@ -21,7 +21,7 @@ export const Achievements = () => {
       try {
         const data = await api.get('/api/achievements');
         if (Array.isArray(data)) {
-            setAchievements(data.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+            setAchievements(data);
         }
       } catch (error) {
         console.error("Failed to fetch achievements:", error);

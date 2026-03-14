@@ -34,6 +34,9 @@ public class Project {
 
     private String imageUrl;
 
+    private Integer rowOrder;
+
+
     // GETTERS
 
     public Long getId() {
@@ -84,6 +87,11 @@ public class Project {
         return featured;
     }
 
+    public Integer getRowOrder() {
+        return rowOrder;
+    }
+
+
     // SETTERS
 
     public void setId(Long id) {
@@ -133,4 +141,9 @@ public class Project {
     public void setFeatured(Boolean featured) {
         this.featured = featured;
     }
+
+    public void setRowOrder(Integer rowOrder) {
+        this.rowOrder = rowOrder;
+    }
+
 }

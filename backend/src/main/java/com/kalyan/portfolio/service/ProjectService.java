@@ -17,7 +17,7 @@ public class ProjectService {
 
     // Get all projects
     public List<Project> getAllProjects() {
-        return projectRepository.findAll();
+        return projectRepository.findAllByOrderByRowOrderAsc();
     }
 
     // Get project by ID
@@ -47,11 +47,23 @@ public class ProjectService {
         project.setArchitecture(updatedProject.getArchitecture());
         project.setComplexity(updatedProject.getComplexity());
         project.setImageUrl(updatedProject.getImageUrl());
+        project.setRowOrder(updatedProject.getRowOrder());
         if (updatedProject.getFeatured() != null) {
             project.setFeatured(updatedProject.getFeatured());
         }
 
         return projectRepository.save(project);
+    }
+
+    public void reorderProjects(List<Long> ids) {
+        for (int i = 0; i < ids.size(); i++) {
+            Long id = ids.get(i);
+            int order = i;
+            projectRepository.findById(id).ifPresent(project -> {
+                project.setRowOrder(order);
+                projectRepository.save(project);
+            });
+        }
     }
 
     // Delete project

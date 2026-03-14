@@ -20,6 +20,9 @@ public class Achievement {
     private String description;
 
     private String url;
+    
+    private Integer rowOrder;
+
 
     // Getters
     public Long getId() { return id; }
@@ -28,6 +31,8 @@ public class Achievement {
     public String getDate() { return date; }
     public String getDescription() { return description; }
     public String getUrl() { return url; }
+    public Integer getRowOrder() { return rowOrder; }
+
 
     // Setters
     public void setId(Long id) { this.id = id; }
@@ -36,4 +41,6 @@ public class Achievement {
     public void setDate(String date) { this.date = date; }
     public void setDescription(String description) { this.description = description; }
     public void setUrl(String url) { this.url = url; }
+    public void setRowOrder(Integer rowOrder) { this.rowOrder = rowOrder; }
+
 }

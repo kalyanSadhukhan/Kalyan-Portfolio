@@ -2,6 +2,7 @@ package com.kalyan.portfolio.controller;
 
 import com.kalyan.portfolio.entity.Project;
 import com.kalyan.portfolio.service.ProjectService;
+import com.kalyan.portfolio.dto.ReorderRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,5 +40,10 @@ public class AdminProjectController {
     @DeleteMapping("/{id}")
     public void deleteProject(@PathVariable("id") Long id) {
         projectService.deleteProject(id);
+    }
+
+    @PutMapping("/reorder")
+    public void reorderProjects(@RequestBody ReorderRequest request) {
+        projectService.reorderProjects(request.getIds());
     }
 }

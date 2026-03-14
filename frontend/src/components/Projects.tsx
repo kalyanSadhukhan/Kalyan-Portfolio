@@ -58,18 +58,7 @@ export default function Projects() {
           projectsToSet = [data];
         }
 
-        // Sort projects
-        const sorted = [...projectsToSet].sort((a, b) => {
-          const aTitle = a.title || "";
-          const bTitle = b.title || "";
-          if (aTitle === "Hotel Reservation System") return -1;
-          if (bTitle === "Hotel Reservation System") return 1;
-          if (aTitle === "Kalyan Developer Portfolio") return -1;
-          if (bTitle === "Kalyan Developer Portfolio") return 1;
-          return 0;
-        });
-
-        setProjects(sorted);
+        setProjects(projectsToSet);
       } catch (error) {
         console.error("Failed to load projects", error);
       } finally {

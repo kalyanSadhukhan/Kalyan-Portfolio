@@ -14,7 +14,7 @@ public class AchievementService {
     private AchievementRepository repository;
 
     public List<Achievement> getAllAchievements() {
-        return repository.findAll();
+        return repository.findAllByOrderByRowOrderAsc();
     }
 
     public Achievement saveAchievement(Achievement achievement) {
@@ -32,7 +32,19 @@ public class AchievementService {
             achievement.setDate(updatedData.getDate());
             achievement.setDescription(updatedData.getDescription());
             achievement.setUrl(updatedData.getUrl());
+            achievement.setRowOrder(updatedData.getRowOrder());
             return repository.save(achievement);
         }).orElseThrow(() -> new RuntimeException("Achievement not found"));
+    }
+
+    public void reorderAchievements(List<Long> ids) {
+        for (int i = 0; i < ids.size(); i++) {
+            Long id = ids.get(i);
+            int order = i;
+            repository.findById(id).ifPresent(achievement -> {
+                achievement.setRowOrder(order);
+                repository.save(achievement);
+            });
+        }
     }
 }

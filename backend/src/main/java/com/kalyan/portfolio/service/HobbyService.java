@@ -15,7 +15,7 @@ public class HobbyService {
     }
 
     public List<Hobby> getAllHobbies() {
-        return hobbyRepository.findAll();
+        return hobbyRepository.findAllByOrderByRowOrderAsc();
     }
 
     public Hobby addHobby(Hobby hobby) {
@@ -29,8 +29,20 @@ public class HobbyService {
         hobby.setName(updatedHobby.getName());
         hobby.setIcon(updatedHobby.getIcon());
         hobby.setDescription(updatedHobby.getDescription());
+        hobby.setRowOrder(updatedHobby.getRowOrder());
         
         return hobbyRepository.save(hobby);
+    }
+
+    public void reorderHobbies(List<Long> ids) {
+        for (int i = 0; i < ids.size(); i++) {
+            Long id = ids.get(i);
+            int order = i;
+            hobbyRepository.findById(id).ifPresent(hobby -> {
+                hobby.setRowOrder(order);
+                hobbyRepository.save(hobby);
+            });
+        }
     }
 
     public void deleteHobby(Long id) {

@@ -3,6 +3,7 @@ package com.kalyan.portfolio.controller;
 import com.kalyan.portfolio.entity.Achievement;
 import com.kalyan.portfolio.service.AchievementService;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.kalyan.portfolio.dto.ReorderRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,6 +39,12 @@ public class AchievementController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAchievement(@PathVariable Long id) {
         service.deleteAchievement(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/reorder")
+    public ResponseEntity<Void> reorderAchievements(@RequestBody ReorderRequest request) {
+        service.reorderAchievements(request.getIds());
         return ResponseEntity.ok().build();
     }
 }
