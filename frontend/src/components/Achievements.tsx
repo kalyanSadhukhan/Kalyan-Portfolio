@@ -59,7 +59,11 @@ export const Achievements = () => {
                 </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Horizontal scroll strip — snaps card-by-card */}
+            <div
+                className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory"
+                style={{ scrollbarWidth: 'thin', scrollbarColor: 'hsl(var(--primary)/0.4) transparent' }}
+            >
                 {achievements.map((item) => {
                     const CardWrapper = item.url ? 'a' : 'div';
                     const cardProps = item.url
@@ -69,7 +73,7 @@ export const Achievements = () => {
                         <CardWrapper
                             key={item.id}
                             {...cardProps}
-                            className="group relative glass-card p-6 border border-white/5 rounded-2xl transition-all duration-500 hover:bg-white/[0.03] hover:border-primary/30 hover:shadow-[0_8px_30px_-8px_rgba(var(--primary),0.25)] overflow-hidden block"
+                            className="group relative glass-card p-6 border border-white/5 rounded-2xl transition-all duration-500 hover:bg-white/[0.03] hover:border-primary/30 hover:shadow-[0_8px_30px_-8px_rgba(var(--primary),0.25)] overflow-hidden block shrink-0 snap-start w-[300px] sm:w-[340px]"
                         >
                             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full -mr-16 -mt-16 transition-transform duration-500 group-hover:scale-150 pointer-events-none" />
                             

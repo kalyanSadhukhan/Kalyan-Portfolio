@@ -124,12 +124,15 @@ export default function Projects() {
             <p className="text-lg">No projects found.</p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div
+            className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory"
+            style={{ scrollbarWidth: 'thin', scrollbarColor: 'hsl(var(--primary)/0.4) transparent' }}
+          >
             {projects.map((project, index) => (
               <Link
                 to={`/projects/${project.id}`}
                 key={project.id}
-                className="block h-full group outline-none focus:ring-2 focus:ring-primary rounded-2xl"
+                className="block shrink-0 snap-start w-[300px] sm:w-[340px] group outline-none focus:ring-2 focus:ring-primary rounded-2xl"
               >
                 <div
                   className="glass-card rounded-2xl h-full flex flex-col border border-white/5 hover:border-primary/30 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_10px_40px_-10px_rgba(77,163,255,0.2)] animate-fade-in overflow-hidden"

@@ -188,7 +188,7 @@ export default function AdminEducation() {
             </div>
 
             <Card className="glass-card shadow-sm border-white/5">
-                <CardContent className="p-0">
+                <CardContent className="p-0 max-h-[420px] overflow-y-auto">
                     {isLoading ? (
                         <div className="flex justify-center items-center py-12">
                             <Loader2 className="h-8 w-8 animate-spin text-primary" />

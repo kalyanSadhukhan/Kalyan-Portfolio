@@ -67,8 +67,11 @@ export const Hobbies = () => {
           </p>
         </div>
 
-        {/* Flip-cards grid — 2 cols mobile, 3 sm, 4 lg */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+        {/* Horizontal scroll strip — snap-scrolls card-by-card */}
+        <div
+          className="flex gap-5 overflow-x-auto pb-4 snap-x snap-mandatory"
+          style={{ scrollbarWidth: 'thin', scrollbarColor: 'hsl(var(--primary)/0.4) transparent' }}
+        >
           {hobbies.map((hobby, index) => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const IconComponent = (LucideIcons as any)[hobby.icon] || LucideIcons.Heart;
@@ -77,11 +80,12 @@ export const Hobbies = () => {
             return (
               <div
                 key={hobby.id}
-                className="animate-fade-in"
+                className="animate-fade-in shrink-0 snap-start"
                 style={{
                   animationDelay: `${index * 60}ms`,
                   perspective: "1000px",
-                  height: "140px",
+                  height: "180px",
+                  width: "390px",
                 }}
               >
                 {/* 3-D flip wrapper */}
@@ -103,7 +107,7 @@ export const Hobbies = () => {
                       <div className="shrink-0 w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
                         <IconComponent className="w-6 h-6 text-primary" />
                       </div>
-                      <span className="text-lg sm:text-xl font-bold text-white leading-tight line-clamp-2">
+                      <span className="text-lg font-bold text-white leading-tight line-clamp-2">
                         {hobby.name}
                       </span>
                     </div>
@@ -121,15 +125,15 @@ export const Hobbies = () => {
                     </div>
                   </div>
 
-                  {/* ─── BACK ─── description */}
+                  {/* ─── BACK ─── description — left/justified for maximum readability */}
                   <div
-                    className="absolute inset-0 glass-card rounded-xl border border-primary/20 bg-primary/5 p-4 flex flex-col justify-center items-center text-center overflow-hidden"
+                    className="absolute inset-0 glass-card rounded-xl border border-primary/20 bg-primary/5 p-4 flex flex-col justify-start overflow-hidden"
                     style={{
                       backfaceVisibility: "hidden",
                       transform: "rotateY(180deg)",
                     }}
                   >
-                    <p className="text-sm text-muted-foreground leading-relaxed line-clamp-4">
+                    <p className="text-sm text-muted-foreground leading-relaxed text-left line-clamp-5">
                       {hobby.description || "No description added yet."}
                     </p>
 

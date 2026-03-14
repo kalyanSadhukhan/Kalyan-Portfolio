@@ -27,7 +27,7 @@ export const AdminLayout = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-background flex flex-col md:flex-row">
+        <div className="h-screen bg-background flex flex-col md:flex-row overflow-hidden">
             {/* Mobile Header */}
             <div className="md:hidden flex items-center justify-between p-4 border-b bg-card">
                 <span className="font-heading font-bold gradient-text text-xl">Admin Portal</span>
@@ -37,7 +37,7 @@ export const AdminLayout = () => {
             </div>
 
             {/* Sidebar */}
-            <aside className={`${isMobileMenuOpen ? 'flex' : 'hidden'} md:flex flex-col w-full md:w-64 border-r bg-card p-4 space-y-4`}>
+            <aside className={`${isMobileMenuOpen ? 'flex' : 'hidden'} md:flex flex-col w-full md:w-64 shrink-0 border-r bg-card p-4 space-y-4 overflow-y-auto`}>
                 <div className="hidden md:flex items-center mb-8 px-2">
                     <span className="font-heading font-bold gradient-text text-2xl">Admin Portal</span>
                 </div>
@@ -86,7 +86,7 @@ export const AdminLayout = () => {
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 p-6 md:p-8 overflow-y-auto w-full bg-muted/20">
+            <main className="flex-1 p-6 md:p-8 overflow-y-auto w-full bg-muted/20 min-h-0">
                 <div className="max-w-6xl mx-auto h-full flex flex-col">
                     <Outlet />
                 </div>

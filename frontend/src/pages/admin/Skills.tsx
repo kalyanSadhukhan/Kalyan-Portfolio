@@ -219,7 +219,7 @@ export default function AdminSkills() {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="flex flex-col gap-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h1 className="text-3xl font-heading font-bold tracking-tight">Skills</h1>
@@ -232,8 +232,15 @@ export default function AdminSkills() {
                 </Button>
             </div>
 
-            <Card className="glass-card shadow-sm border-white/5">
-                <CardContent className="p-0">
+            {/* Card fills exactly the remaining viewport height */}
+            <Card
+                className="glass-card shadow-sm border-white/5 overflow-hidden"
+                style={{ height: 'calc(100vh - 13rem)' }}
+            >
+                <CardContent
+                    className="p-0 h-full overflow-y-auto"
+                    style={{ scrollbarWidth: 'thin', scrollbarColor: 'hsl(var(--primary)/0.3) transparent' }}
+                >
                     {isLoading ? (
                         <div className="flex justify-center items-center py-12">
                             <Loader2 className="h-8 w-8 animate-spin text-primary" />
