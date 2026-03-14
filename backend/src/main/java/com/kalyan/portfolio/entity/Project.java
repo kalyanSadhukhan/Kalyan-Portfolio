@@ -27,7 +27,7 @@ public class Project {
     @Column(length = 2000)
     private String features;
 
-    @Column(length = 2000)
+    @Column(length = 5000)
     private String architecture;
 
     private String complexity;
