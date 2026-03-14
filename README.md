@@ -4,8 +4,8 @@ This repository is a monorepo containing the modern personal portfolio website b
 
 ## Repository Structure
 
-- `/frontend` - React, TypeScript, Vite, Tailwind CSS, shadcn/ui.
-- `/backend` - Spring Boot backend API with H2 Database and JWT Authentication.
+- `/frontend` - React, TypeScript, Vite, Tailwind CSS.
+- `/backend` - Spring Boot backend API with neon Database and JWT Authentication.
 
 ## Getting Started
 
