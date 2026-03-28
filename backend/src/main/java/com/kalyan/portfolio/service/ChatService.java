@@ -151,7 +151,7 @@ public class ChatService {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return "I'm experiencing a temporary issue. Please try again in a moment.";
+            return e.getMessage();
         }
     }
 
