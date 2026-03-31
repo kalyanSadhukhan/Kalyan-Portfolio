@@ -14,14 +14,12 @@ import java.util.stream.Collectors;
 /**
  * RAG-powered chat service for Kalyan's portfolio chatbot.
  *
- * Pipeline:
- *   1. Normalize question & check ResponseCache.
- *   2. Route question via QueryRouter to detect relevant domain(s).
- *   3. Fetch only relevant DB records.
- *   4. For project questions, also fetch GitHub README content.
- *   5. Build a compressed context via ContextBuilder.
- *   6. Send context + question to Gemini via ChatClient.
- *   7. Cache and return the response.
+ * Execution pipeline (short-circuits as early as possible):
+ *   LEVEL 1 — Context cache hit  : call Gemini with cachedContext immediately.
+ *                                   Zero DB calls, zero QueryRouter invocations.
+ *   LEVEL 2 — Response cache hit : return exact cached answer for identical question.
+ *   LEVEL 3 — Full pipeline      : QueryRouter → DB fetch → ContextBuilder → Gemini.
+ *                                   Stores result in both caches.
  */
 @Service
 public class ChatService {
@@ -84,29 +82,44 @@ public class ChatService {
             return "Please ask me something about Kalyan's portfolio!";
         }
 
-        // 1. Cache check — return immediately for repeated questions
+        // ── LEVEL 1: Context cache short-circuit ─────────────────────────────────
+        // If the context cache is warm, skip QueryRouter AND all repository calls
+        // entirely — only Gemini is invoked.
+        long now = System.currentTimeMillis();
+        if (cachedContext != null && (now - lastCacheTime) < CACHE_DURATION) {
+            // Still honour the response cache for identical repeated questions
+            if (responseCache.contains(userMessage)) {
+                return responseCache.get(userMessage);
+            }
+            try {
+                String answer = callGemini(userMessage, cachedContext);
+                responseCache.put(userMessage, answer);
+                return answer;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return e.getMessage();
+            }
+        }
+
+        // ── LEVEL 2: Response cache (context is cold, check before hitting DB) ────
         if (responseCache.contains(userMessage)) {
             return responseCache.get(userMessage);
         }
 
+        // ── LEVEL 3: Full pipeline — context cache expired or not yet populated ───
         try {
-            // 2. Route question to detect relevant domains
+            System.out.println("DB FETCH EXECUTED");
+
             List<QueryType> types = queryRouter.route(userMessage);
+            String context = buildContextFromDB(types, userMessage);
 
-            // 3. Build or reuse cached context
-            String context = getOrBuildContext(types, userMessage);
-
-            // Edge case: no data found in DB at all
             if (context.isBlank()) {
                 String fallback = "I don't have enough portfolio data to answer that question yet.";
                 responseCache.put(userMessage, fallback);
                 return fallback;
             }
 
-            // 4. Build Gemini prompt and call
             String answer = callGemini(userMessage, context);
-
-            // 5. Cache and return
             responseCache.put(userMessage, answer);
             return answer;
 
@@ -119,20 +132,11 @@ public class ChatService {
     // ──────────────────────────────── CONTEXT CACHE LOGIC ───────────────────────
 
     /**
-     * Returns the cached full context if still valid, otherwise rebuilds it
-     * from the database. DB fetch is logged when it occurs.
+     * Fetches portfolio data from the database, builds the context string and
+     * stores it in the context cache. Called ONLY when the cache is cold/expired.
+     * The cache validity check is done at the top of chat() BEFORE this is called.
      */
-    private String getOrBuildContext(List<QueryType> types, String userMessage) {
-        long now = System.currentTimeMillis();
-
-        // Return cached context if it is still fresh
-        if (cachedContext != null && (now - lastCacheTime) < CACHE_DURATION) {
-            return cachedContext;
-        }
-
-        // ── Cache miss → fetch from DB ────────────────────────────────────────
-        log.info("DB FETCH EXECUTED");
-
+    private String buildContextFromDB(List<QueryType> types, String userMessage) {
         List<About>         aboutList      = new ArrayList<>();
         List<Skill>         skills         = new ArrayList<>();
         List<Project>       projects       = new ArrayList<>();
@@ -141,12 +145,10 @@ public class ChatService {
         List<Achievement>   achievements   = new ArrayList<>();
         List<Hobby>         hobbies        = new ArrayList<>();
 
-        // FIX: GENERAL no longer triggers a full fetch — use minimal fallback instead
+        // GENERAL queries use ABOUT + SKILLS as minimal fallback (no full table scan)
         boolean includeAll = false;
+        boolean isGeneral  = types.isEmpty() || types.contains(QueryType.GENERAL);
 
-        boolean isGeneral = types.isEmpty() || types.contains(QueryType.GENERAL);
-
-        // ABOUT + SKILLS are always fetched for GENERAL / empty queries (minimal fallback)
         if (isGeneral || types.contains(QueryType.ABOUT))
             aboutList = aboutRepository.findAll();
 
@@ -155,7 +157,6 @@ public class ChatService {
 
         // Remaining domains only when explicitly routed
         if (includeAll || types.contains(QueryType.PROJECTS))
-            // FIX: limit to 5 projects to reduce payload size
             projects = projectRepository.findAll()
                            .stream()
                            .limit(5)
@@ -173,8 +174,8 @@ public class ChatService {
         if (includeAll || types.contains(QueryType.HOBBIES))
             hobbies = hobbyRepository.findAll();
 
-        // FIX: GitHub README fetch is temporarily disabled to reduce latency/CPU
-        // Uncomment the block below to re-enable external README fetching:
+        // GitHub README fetch is temporarily disabled to reduce latency/CPU.
+        // Uncomment the block below to re-enable:
         /*
         Map<String, String> readmeMap = new HashMap<>();
         if ((includeAll || types.contains(QueryType.PROJECTS)) && !projects.isEmpty()) {
@@ -182,23 +183,21 @@ public class ChatService {
             for (Project p : relevantProjects) {
                 if (p.getGithubLink() != null && !p.getGithubLink().isBlank()) {
                     String readme = gitHubReadmeService.fetchReadme(p.getGithubLink());
-                    if (!readme.isBlank()) {
-                        readmeMap.put(p.getGithubLink(), readme);
-                    }
+                    if (!readme.isBlank()) readmeMap.put(p.getGithubLink(), readme);
                 }
             }
         }
         */
         Map<String, String> readmeMap = new HashMap<>();
 
-        // Build compressed context and store in cache
         String context = buildContext(
             aboutList, skills, projects, education,
             certifications, achievements, hobbies, readmeMap
         );
 
+        // Populate context cache so subsequent requests skip all DB logic
         cachedContext = context;
-        lastCacheTime = now;
+        lastCacheTime = System.currentTimeMillis();
 
         return context;
     }
