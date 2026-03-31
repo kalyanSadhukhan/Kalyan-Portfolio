@@ -3,8 +3,6 @@ package com.kalyan.portfolio.service;
 import com.kalyan.portfolio.ai.*;
 import com.kalyan.portfolio.entity.*;
 import com.kalyan.portfolio.repository.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 
@@ -25,8 +23,6 @@ import java.util.stream.Collectors;
 public class ChatService {
 
     // ──────────────────────────────── DEPENDENCIES ──────────────────────────────
-
-    private static final Logger log = LoggerFactory.getLogger(ChatService.class);
 
     private final ChatClient chatClient;
     private final ResponseCache responseCache;
@@ -87,8 +83,10 @@ public class ChatService {
         // entirely — only Gemini is invoked.
         long now = System.currentTimeMillis();
         if (cachedContext != null && (now - lastCacheTime) < CACHE_DURATION) {
+            System.out.println("CONTEXT CACHE HIT — skipping DB and QueryRouter");
             // Still honour the response cache for identical repeated questions
             if (responseCache.contains(userMessage)) {
+                System.out.println("RESPONSE CACHE HIT — returning cached answer");
                 return responseCache.get(userMessage);
             }
             try {
