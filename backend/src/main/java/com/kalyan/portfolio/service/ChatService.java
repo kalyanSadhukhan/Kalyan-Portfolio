@@ -3,6 +3,8 @@ package com.kalyan.portfolio.service;
 import com.kalyan.portfolio.ai.*;
 import com.kalyan.portfolio.entity.*;
 import com.kalyan.portfolio.repository.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +28,8 @@ public class ChatService {
 
     // ──────────────────────────────── DEPENDENCIES ──────────────────────────────
 
+    private static final Logger log = LoggerFactory.getLogger(ChatService.class);
+
     private final ChatClient chatClient;
     private final ResponseCache responseCache;
     private final QueryRouter queryRouter;
@@ -40,6 +44,12 @@ public class ChatService {
     private final CertificationRepository certificationRepository;
     private final AchievementRepository achievementRepository;
     private final HobbyRepository hobbyRepository;
+
+    // ──────────────────────────────── CONTEXT CACHE ──────────────────────────────
+
+    private String cachedContext;
+    private long lastCacheTime;
+    private static final long CACHE_DURATION = 300_000; // 5 minutes in ms
 
     public ChatService(ChatClient.Builder chatClientBuilder,
                        ResponseCache responseCache,
@@ -83,57 +93,8 @@ public class ChatService {
             // 2. Route question to detect relevant domains
             List<QueryType> types = queryRouter.route(userMessage);
 
-            // 3. Retrieve only relevant DB records
-            List<About>         aboutList       = new ArrayList<>();
-            List<Skill>         skills          = new ArrayList<>();
-            List<Project>       projects        = new ArrayList<>();
-            List<Education>     education       = new ArrayList<>();
-            List<Certification> certifications  = new ArrayList<>();
-            List<Achievement>   achievements    = new ArrayList<>();
-            List<Hobby>         hobbies         = new ArrayList<>();
-
-            boolean includeAll = types.contains(QueryType.GENERAL);
-
-            if (includeAll || types.contains(QueryType.ABOUT))
-                aboutList = aboutRepository.findAll();
-
-            if (includeAll || types.contains(QueryType.SKILLS))
-                skills = skillRepository.findAll();
-
-            if (includeAll || types.contains(QueryType.PROJECTS))
-                projects = projectRepository.findAll();
-
-            if (includeAll || types.contains(QueryType.EDUCATION))
-                education = educationRepository.findAll();
-
-            if (includeAll || types.contains(QueryType.CERTIFICATIONS))
-                certifications = certificationRepository.findAll();
-
-            if (includeAll || types.contains(QueryType.ACHIEVEMENTS))
-                achievements = achievementRepository.findAll();
-
-            if (includeAll || types.contains(QueryType.HOBBIES))
-                hobbies = hobbyRepository.findAll();
-
-            // 4. For project questions, fetch relevant GitHub READMEs
-            Map<String, String> readmeMap = new HashMap<>();
-            if ((includeAll || types.contains(QueryType.PROJECTS)) && !projects.isEmpty()) {
-                List<Project> relevantProjects = filterRelevantProjects(projects, userMessage);
-                for (Project p : relevantProjects) {
-                    if (p.getGithubLink() != null && !p.getGithubLink().isBlank()) {
-                        String readme = gitHubReadmeService.fetchReadme(p.getGithubLink());
-                        if (!readme.isBlank()) {
-                            readmeMap.put(p.getGithubLink(), readme);
-                        }
-                    }
-                }
-            }
-
-            // 5. Build compressed context
-            String context = buildContext(
-                aboutList, skills, projects, education,
-                certifications, achievements, hobbies, readmeMap
-            );
+            // 3. Build or reuse cached context
+            String context = getOrBuildContext(types, userMessage);
 
             // Edge case: no data found in DB at all
             if (context.isBlank()) {
@@ -142,10 +103,10 @@ public class ChatService {
                 return fallback;
             }
 
-            // 6. Build Gemini prompt and call
+            // 4. Build Gemini prompt and call
             String answer = callGemini(userMessage, context);
 
-            // 7. Cache and return
+            // 5. Cache and return
             responseCache.put(userMessage, answer);
             return answer;
 
@@ -153,6 +114,93 @@ public class ChatService {
             e.printStackTrace();
             return e.getMessage();
         }
+    }
+
+    // ──────────────────────────────── CONTEXT CACHE LOGIC ───────────────────────
+
+    /**
+     * Returns the cached full context if still valid, otherwise rebuilds it
+     * from the database. DB fetch is logged when it occurs.
+     */
+    private String getOrBuildContext(List<QueryType> types, String userMessage) {
+        long now = System.currentTimeMillis();
+
+        // Return cached context if it is still fresh
+        if (cachedContext != null && (now - lastCacheTime) < CACHE_DURATION) {
+            return cachedContext;
+        }
+
+        // ── Cache miss → fetch from DB ────────────────────────────────────────
+        log.info("DB FETCH EXECUTED");
+
+        List<About>         aboutList      = new ArrayList<>();
+        List<Skill>         skills         = new ArrayList<>();
+        List<Project>       projects       = new ArrayList<>();
+        List<Education>     education      = new ArrayList<>();
+        List<Certification> certifications = new ArrayList<>();
+        List<Achievement>   achievements   = new ArrayList<>();
+        List<Hobby>         hobbies        = new ArrayList<>();
+
+        // FIX: GENERAL no longer triggers a full fetch — use minimal fallback instead
+        boolean includeAll = false;
+
+        boolean isGeneral = types.isEmpty() || types.contains(QueryType.GENERAL);
+
+        // ABOUT + SKILLS are always fetched for GENERAL / empty queries (minimal fallback)
+        if (isGeneral || types.contains(QueryType.ABOUT))
+            aboutList = aboutRepository.findAll();
+
+        if (isGeneral || types.contains(QueryType.SKILLS))
+            skills = skillRepository.findAll();
+
+        // Remaining domains only when explicitly routed
+        if (includeAll || types.contains(QueryType.PROJECTS))
+            // FIX: limit to 5 projects to reduce payload size
+            projects = projectRepository.findAll()
+                           .stream()
+                           .limit(5)
+                           .collect(Collectors.toList());
+
+        if (includeAll || types.contains(QueryType.EDUCATION))
+            education = educationRepository.findAll();
+
+        if (includeAll || types.contains(QueryType.CERTIFICATIONS))
+            certifications = certificationRepository.findAll();
+
+        if (includeAll || types.contains(QueryType.ACHIEVEMENTS))
+            achievements = achievementRepository.findAll();
+
+        if (includeAll || types.contains(QueryType.HOBBIES))
+            hobbies = hobbyRepository.findAll();
+
+        // FIX: GitHub README fetch is temporarily disabled to reduce latency/CPU
+        // Uncomment the block below to re-enable external README fetching:
+        /*
+        Map<String, String> readmeMap = new HashMap<>();
+        if ((includeAll || types.contains(QueryType.PROJECTS)) && !projects.isEmpty()) {
+            List<Project> relevantProjects = filterRelevantProjects(projects, userMessage);
+            for (Project p : relevantProjects) {
+                if (p.getGithubLink() != null && !p.getGithubLink().isBlank()) {
+                    String readme = gitHubReadmeService.fetchReadme(p.getGithubLink());
+                    if (!readme.isBlank()) {
+                        readmeMap.put(p.getGithubLink(), readme);
+                    }
+                }
+            }
+        }
+        */
+        Map<String, String> readmeMap = new HashMap<>();
+
+        // Build compressed context and store in cache
+        String context = buildContext(
+            aboutList, skills, projects, education,
+            certifications, achievements, hobbies, readmeMap
+        );
+
+        cachedContext = context;
+        lastCacheTime = now;
+
+        return context;
     }
 
     // ──────────────────────────────── GEMINI CALL ───────────────────────────────
